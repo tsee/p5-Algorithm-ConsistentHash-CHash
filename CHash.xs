@@ -35,9 +35,9 @@ new(CLASS, ...)
     I32 i;
     SV **svp;
     AV *ids;
-    int replicas;
-    char **keys;
-    int nkeys;
+    size_t replicas;
+    const char **keys;
+    size_t nkeys;
     SV *guard;
   CODE:
     if ( (items-1) % 2 )
@@ -70,7 +70,7 @@ new(CLASS, ...)
     /* ALKSDHLJHAWWKLADJLKJWDLKHADWHKLLKHAWD */
     nkeys = av_len(ids)+1;
     guard = sv_2mortal( newSV( nkeys * sizeof(char *) ) );
-    keys = (char **)SvPVX(guard);
+    keys = (const char **)SvPVX(guard);
 
     for (i = 0; i < nkeys; ++i) {
       char *k;
@@ -107,8 +107,8 @@ lookup(self, key)
     struct chash_t *self
     SV *key;
   PREINIT:
-    char *out_str;
-    char *key_str;
+    const char *out_str;
+    const char *key_str;
     STRLEN key_len;
   CODE:
     key_str = SvPVbyte(key, key_len);
