@@ -9,15 +9,15 @@
 #include "libchash.h"
 
 struct bucket_t {
-    char *key;
+    const char *key;
     uint32_t point;
 } bucket_t;
 
 struct chash_t {
     struct bucket_t *blist;
-    int nbuckets;
+    size_t nbuckets;
     char **keys;
-    int nkeys;
+    size_t nkeys;
 } chash_t;
 
 static int cmpbucket(const void *a, const void *b)
@@ -66,7 +66,7 @@ static uint32_t leveldb_bloom_hash(unsigned char *b, size_t len)
     return h;
 }
 
-struct chash_t *chash_create(char **keys, int nkeys, int replicas)
+struct chash_t *chash_create(const char **keys, size_t nkeys, size_t replicas)
 {
 
     struct chash_t *chash;
@@ -74,15 +74,15 @@ struct chash_t *chash_create(char **keys, int nkeys, int replicas)
     struct bucket_t *blist =
 	(struct bucket_t *) malloc(sizeof(bucket_t) * nkeys * replicas);
     char **klist = (char **) malloc(sizeof(char *) * nkeys);
-    int bidx = 0;
+    size_t k, r, len, bidx = 0;
 
     char buffer[256];
 
-    for (int k = 0; k < nkeys; k++) {
+    for (k = 0; k < nkeys; k++) {
 	klist[k] = strdup(keys[k]);
-	for (int r = 0; r < replicas; r++) {
+	for (r = 0; r < replicas; r++) {
 	    blist[bidx].key = keys[k];
-	    int len = snprintf(buffer, sizeof(buffer), "%d%s", r, keys[k]);
+	    len = snprintf(buffer, sizeof(buffer), "%d%s", r, keys[k]);
 	    /* TODO(dgryski): complain if keys[k] is too large */
 	    blist[bidx].point = leveldb_bloom_hash((unsigned char *)buffer, len);
 	    bidx++;
@@ -100,7 +100,7 @@ struct chash_t *chash_create(char **keys, int nkeys, int replicas)
     return chash;
 }
 
-char *chash_lookup(struct chash_t *chash, char *key, int len)
+const char *chash_lookup(struct chash_t *chash, const char *key, size_t len)
 {
 
     struct bucket_t *b = chash->blist;
@@ -118,12 +118,14 @@ char *chash_lookup(struct chash_t *chash, char *key, int len)
 	return chash->blist[0].key;
     }
 
-    return b->key;
+    return (const char *) b->key;
 }
 
 void chash_free(struct chash_t *chash)
 {
-    for (int i = 0; i < chash->nkeys; i++) {
+    size_t i;
+
+    for (i = 0; i < chash->nkeys; i++) {
 	free(chash->keys[i]);
     }
     free(chash->keys);
