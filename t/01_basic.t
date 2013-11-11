@@ -10,7 +10,7 @@ my $ch = Algorithm::ConsistentHash::CHash->new(
 );
 
 SCOPE: {
-  my $where = $ch->lookup($_);
+  my $where = $ch->lookup("123");
   ok(defined $where, "lookup output defined");
   ok($where eq 'node1' || $where eq 'node2' || $where eq 'node3',
      "lookup output is one of the valid values");
