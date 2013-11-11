@@ -113,6 +113,6 @@ lookup(self, key)
   CODE:
     key_str = SvPVbyte(key, key_len);
     out_str = chash_lookup(self, key_str, key_len);
-    RETVAL = sv_2mortal( newSVpvn(out_str, strlen(out_str)) );
+    RETVAL = newSVpvn(out_str, strlen(out_str));
   OUTPUT: RETVAL
 
