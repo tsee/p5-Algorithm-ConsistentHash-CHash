@@ -22,9 +22,11 @@ for (1..10000) {
   $nodes{$where}++;
 }
 
-ok($nodes{node1} > 0);
-ok($nodes{node2} > 0);
-ok($nodes{node3} > 0);
+for (qw(node1 node2 node3)) {
+  ok($nodes{$_} > 0, "have hits for node '$_'");
+}
+is($nodes{node1} + $nodes{node2} + $nodes{node3}, 10000,
+   "Sum of lookups adds up (duh)");
 
 pass("Alive");
 done_testing();
