@@ -19,7 +19,7 @@ INPUT
 
 O_OBJECT
   if ( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
-    $var = ($type)SvIV((SV*)SvRV( $arg ));
+    $var = INT2PTR($type, SvIV((SV*)SvRV( $arg )));
   else
     croak( \"${Package}::$func_name() -- $var is not a blessed SV reference\" );
 HERE
