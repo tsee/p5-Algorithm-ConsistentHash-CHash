@@ -94,8 +94,10 @@ new(CLASS, ...)
 
       keys[i] = k;
       lens[i] = len;
+      /* fprintf(stderr, "node => '%s', len => %u\n", k, len); */
     }
 
+    /* fprintf(stderr, "nkeys => %u, replicas => %u\n", nkeys, replicas); */
     RETVAL = chash_create(keys, lens, nkeys, replicas);
 
     if (RETVAL == NULL)

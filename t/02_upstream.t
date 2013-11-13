@@ -4,11 +4,6 @@ use warnings;
 use Test::More;
 use Algorithm::ConsistentHash::CHash;
 
-my $ch = Algorithm::ConsistentHash::CHash->new(
-    ids      => [ "server1", "server2", "server3", "server4", "server5" ],
-    replicas => 160,
-);
-
 my $expected = {
     "server1" => 19236,
     "server2" => 21802,
@@ -18,6 +13,11 @@ my $expected = {
 };
 
 my $actual = {};
+
+my $ch = Algorithm::ConsistentHash::CHash->new(
+    ids      => [ sort keys %$expected ],
+    replicas => 160,
+);
 
 for ( my $i = 0 ; $i < 100000 ; $i++ ) {
     my $where = $ch->lookup("foo$i\n");
