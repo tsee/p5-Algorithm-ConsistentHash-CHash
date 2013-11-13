@@ -10,6 +10,7 @@
 
 struct bucket_t {
     const char *node_name;
+    size_t name_len;
     uint32_t point;
 } bucket_t;
 
@@ -17,6 +18,7 @@ struct chash_t {
     struct bucket_t *blist;
     size_t nbuckets;
     char **node_names;
+    size_t *name_lens;
     size_t num_names;
 } chash_t;
 
@@ -39,7 +41,6 @@ static int cmpbucket(const void *a, const void *b)
 /* from leveldb, a murmur-lite */
 static uint32_t leveldb_bloom_hash(unsigned char *b, size_t len)
 {
-
     const uint32_t seed = 0xbc9f1d34;
     const uint32_t m = 0xc6a4a793;
 
@@ -65,23 +66,26 @@ static uint32_t leveldb_bloom_hash(unsigned char *b, size_t len)
     return h;
 }
 
-struct chash_t *chash_create(const char **node_names, size_t num_names,
-			     size_t replicas)
+struct chash_t *chash_create(const char **node_names, size_t * name_lens,
+			     size_t num_names, size_t replicas)
 {
-
     struct chash_t *chash;
 
     struct bucket_t *blist =
 	(struct bucket_t *) malloc(sizeof(bucket_t) * num_names * replicas);
     char **nlist = (char **) malloc(sizeof(char *) * num_names);
+    size_t *lens = (size_t *) malloc(sizeof(size_t) * num_names);
     size_t n, r, len, bidx = 0;
 
     char buffer[256];
 
     for (n = 0; n < num_names; n++) {
-	nlist[n] = strdup(node_names[n]);
+	nlist[n] = (char *) malloc(sizeof(char) * name_lens[n]);
+	lens[n] = name_lens[n];
+	memcpy(nlist[n], node_names[n], lens[n]);
 	for (r = 0; r < replicas; r++) {
 	    blist[bidx].node_name = nlist[n];
+	    blist[bidx].name_len = lens[n];
 	    len = snprintf(buffer, sizeof(buffer), "%u%s", r, nlist[n]);
 	    if (len >= 255) {
 		fprintf(stderr, "Node name truncated to: %s\n", buffer);
@@ -98,14 +102,15 @@ struct chash_t *chash_create(const char **node_names, size_t num_names,
     chash->blist = blist;
     chash->nbuckets = bidx;
     chash->node_names = nlist;
+    chash->name_lens = lens;
     chash->num_names = num_names;
 
     return chash;
 }
 
-const char *chash_lookup(struct chash_t *chash, const char *key, size_t len)
+void chash_lookup(struct chash_t *chash, const char *key, size_t len,
+		  const char **node_name, size_t * name_len)
 {
-
     struct bucket_t *b = chash->blist;
     struct bucket_t *end = chash->blist + chash->nbuckets;
 
@@ -118,10 +123,12 @@ const char *chash_lookup(struct chash_t *chash, const char *key, size_t len)
     }
 
     if (b == end) {
-	return chash->blist[0].node_name;
+	*node_name = chash->blist[0].node_name;
+	*name_len = chash->blist[0].name_len;
+    } else {
+	*node_name = b->node_name;
+	*name_len = b->name_len;
     }
-
-    return (const char *) b->node_name;
 }
 
 void chash_free(struct chash_t *chash)
@@ -132,6 +139,7 @@ void chash_free(struct chash_t *chash)
 	free(chash->node_names[i]);
     }
     free(chash->node_names);
+    free(chash->name_lens);
     free(chash->blist);
     free(chash);
 }

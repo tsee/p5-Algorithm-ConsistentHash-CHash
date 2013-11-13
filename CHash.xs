@@ -37,6 +37,7 @@ new(CLASS, ...)
     AV *ids;
     size_t replicas;
     const char **keys;
+    size_t **lens;
     size_t nkeys;
     SV *guard;
   CODE:
@@ -69,6 +70,7 @@ new(CLASS, ...)
 
     /* ALKSDHLJHAWWKLADJLKJWDLKHADWHKLLKHAWD */
     nkeys = av_len(ids)+1;
+    lens = (size_t *) malloc(sizeof(size_t) * nkeys);
     guard = sv_2mortal( newSV( nkeys * sizeof(char *) ) );
     keys = (const char **)SvPVX(guard);
 
@@ -87,12 +89,15 @@ new(CLASS, ...)
       }
       /* FIXME pass in len somehow... */
       keys[i] = k;
+      lens[i] = len;
     }
 
-    RETVAL = chash_create(keys, nkeys, replicas);
+    RETVAL = chash_create(keys, lens, nkeys, replicas);
 
     if (RETVAL == NULL)
       croak("Unknown error");
+
+    free(lens);
   OUTPUT: RETVAL
 
 
@@ -108,11 +113,12 @@ lookup(self, key)
     SV *key;
   PREINIT:
     const char *out_str;
+    size_t out_str_len;
     const char *key_str;
     STRLEN key_len;
   CODE:
     key_str = SvPVbyte(key, key_len);
-    out_str = chash_lookup(self, key_str, key_len);
-    RETVAL = newSVpvn(out_str, strlen(out_str));
+    chash_lookup(self, key_str, key_len, &out_str, &out_str_len);
+    RETVAL = newSVpvn(out_str, out_str_len);
   OUTPUT: RETVAL
 
