@@ -37,9 +37,10 @@ new(CLASS, ...)
     AV *ids;
     size_t replicas;
     const char **keys;
-    size_t **lens;
+    size_t *lens;
     size_t nkeys;
-    SV *guard;
+    SV *keys_guard;
+    SV *lens_guard;
   CODE:
     if ( (items-1) % 2 )
       croak("Even number of parameters expected!");
@@ -68,11 +69,14 @@ new(CLASS, ...)
     if (replicas == 0)
       croak("Cannot work with zero replicas!");
 
-    /* ALKSDHLJHAWWKLADJLKJWDLKHADWHKLLKHAWD */
     nkeys = av_len(ids)+1;
-    lens = (size_t *) malloc(sizeof(size_t) * nkeys);
-    guard = sv_2mortal( newSV( nkeys * sizeof(char *) ) );
-    keys = (const char **)SvPVX(guard);
+
+    /* Allocate memory in an exception-safe manner */
+    keys_guard = sv_2mortal( newSV( nkeys * sizeof(char *) ) );
+    keys = (const char **)SvPVX(keys_guard);
+
+    lens_guard = sv_2mortal( newSV( nkeys * sizeof(size_t) ) );
+    lens = (size_t *)SvPVX(lens_guard);
 
     for (i = 0; i < nkeys; ++i) {
       char *k;
@@ -87,7 +91,7 @@ new(CLASS, ...)
       else {
         k = SvPVbyte(*svp, len); /* FIXME is this correct for UTF8? */
       }
-      /* FIXME pass in len somehow... */
+
       keys[i] = k;
       lens[i] = len;
     }
@@ -96,8 +100,6 @@ new(CLASS, ...)
 
     if (RETVAL == NULL)
       croak("Unknown error");
-
-    free(lens);
   OUTPUT: RETVAL
 
 
