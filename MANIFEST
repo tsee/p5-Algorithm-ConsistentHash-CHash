@@ -1,0 +1,10 @@
+CHash.xs
+lib/Algorithm/ConsistentHash/CHash.pm
+libchash.c
+libchash.h
+Makefile.PL
+MANIFEST			This list of files
+ppport.h
+t/00_load.t
+t/01_basic.t
+t/02_upstream.t
