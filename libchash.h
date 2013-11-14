@@ -1,4 +1,4 @@
-/* libchash.h */
+/* chash.h */
 #ifndef _LIBCHASH_H_
 #define _LIBCHASH_H_
 
@@ -12,4 +12,4 @@ void chash_lookup(struct chash_t *chash, const char *key, size_t len,
 
 void chash_free(struct chash_t *chash);
 
-#endif /* _CHASH_H_ */
+#endif /* _LIBCHASH_H_ */
