@@ -1,0 +1,5 @@
+2016-06-05  Eric Herman <eric@freesa.org>
+
+	Tagging v 0.03
+
+	* libchash.c: respect const qualifier (pulled from upstream)
