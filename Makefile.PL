@@ -6,6 +6,7 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
     NAME       => 'Algorithm::ConsistentHash::CHash',
+    LICENSE    => 'perl',
     META_MERGE => {
         resources => {
             repository => {
