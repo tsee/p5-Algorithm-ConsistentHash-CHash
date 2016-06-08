@@ -1,3 +1,20 @@
+2016-06-08  Eric Herman <eric@freesa.org>
+
+	release v0.03
+
+	merges upstream commit b81b840e4ad30dd6d18660ef8d3ee8d81a16e961
+	from git@github.com:dgryski/libchash.git
+
+	including:
+	bug fix relating to malloc returning a NULL (out of memory)
+	warning fix of cast discards qualifier
+	reduced size of bucket_t
+
+	* libchash.c: merge upstream
+	* libchash.h: merge upstream
+	* Makefile.PL: add repo META info
+	* lib/Algorithm/ConsistentHash/CHash.pm: bump version 0.03
+
 2016-06-05  Eric Herman <eric@freesa.org>
 
 	Tagging v 0.03

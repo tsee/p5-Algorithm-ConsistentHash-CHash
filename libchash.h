@@ -1,4 +1,4 @@
-/* chash.h */
+/* libchash.h */
 #ifndef DGRYSKI_LIBCHASH_CHASH_H
 #define DGRYSKI_LIBCHASH_CHASH_H
 

@@ -1,4 +1,4 @@
-/* chash.c */
+/* libchash.c */
 /* This library implements a consistent hash ring */
 
 #include <stdlib.h>
