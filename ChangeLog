@@ -1,6 +1,6 @@
 2016-06-08  Eric Herman <eric@freesa.org>
 
-	release v0.03
+	release v0.04
 
 	merges upstream commit b81b840e4ad30dd6d18660ef8d3ee8d81a16e961
 	from git@github.com:dgryski/libchash.git
@@ -12,7 +12,7 @@
 
 	* libchash.c: merge upstream
 	* libchash.h: merge upstream
-	* Makefile.PL: add repo META info
+	* Makefile.PL: reduce min perl version, add repo META info
 	* lib/Algorithm/ConsistentHash/CHash.pm: bump version 0.03
 
 2016-06-05  Eric Herman <eric@freesa.org>
